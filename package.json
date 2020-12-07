@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/ohoktnt/tinyapp/issues"
   },
-  "homepage": "https://github.com/ohoktnt/tinyapp#readme"
+  "homepage": "https://github.com/ohoktnt/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
