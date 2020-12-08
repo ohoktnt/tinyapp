@@ -19,6 +19,24 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2,8);
 };
 
+function isValid(input) {
+  if(input) {
+    return true;
+  }
+  return false;
+}
+
+function isNewEmail(email) {
+  let emailList = [];
+  for(let user in users) {
+    emailList.push(users[user].email)
+  }
+  if (emailList.includes(email)){
+    return false
+  }
+  return true;
+}
+
 // Databases
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -100,20 +118,27 @@ app.post("/urls/:shortURL", (req, res) => {
 })
 
 app.post('/register', (req,res) => {
-  // collect user info
+  // collect user info from form
   const userID = generateRandomString();
   const userEmail = req.body.email;
   const userPass = req.body.password;
-  // add user to database
-  users[userID] = {
-    id: userID,
-    email: userEmail,
-    password: userPass
+  // check if email or password is valid, then register
+  if (isValid(userEmail) && isValid(userPass) && isNewEmail(userEmail)) {
+    users[userID] = {
+      id: userID,
+      email: userEmail,
+      password: userPass
+    }
+    // console.log(users);
+    res.cookie("user_id", users[userID]);
+    res.redirect('/urls')
+  } else {
+    if(!isValid(userEmail) || !isValid(userPass)) {
+      res.send("Status Code: 400. Email or password not entered.")
+    } else {
+      res.send("Status Code: 400. Email already in use")
+    }
   }
-  console.log(users);
-  res.cookie("user_id", users[userID]);
-  console.log(users[userID])
-  res.redirect('/urls')
 })
 
 // cookie management
