@@ -82,6 +82,11 @@ app.get("/register", (req,res) => {
   res.render("urls_registration", templateVars);
 })
 
+app.get("/login", (req, res) => {
+  const templateVars = { user_id: req.cookies["user_id"]}
+  res.render("urls_login", templateVars)
+})
+
 // Internal Sample pages
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
