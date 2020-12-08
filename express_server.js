@@ -2,13 +2,15 @@
 
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 3000; // default port 8080
+const cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
+// helper function
 function generateRandomString() {
   // example given in lecture
   return Math.random().toString(36).substring(2,8);
@@ -19,6 +21,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+// Routes - GET
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -51,6 +54,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// routes for events
 
 app.post("/urls", (req, res) => {
   let newShortURL = generateRandomString();
@@ -68,6 +72,13 @@ app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
   urlDatabase[req.params.shortURL] = newLongURL;
   res.redirect(`/urls/${req.params.shortURL}`);
+})
+
+app.post("/login", (req, res) => {
+  let username = req.body.username;
+  res.cookie("username", username);
+  console.log(username);
+  res.redirect('urls')
 })
 
 app.listen(PORT, () => {
