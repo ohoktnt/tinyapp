@@ -19,14 +19,29 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2,8);
 };
 
+// Databases
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
+}
+
 // Routes to different pages
+// Internal Pages
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.send("Hello!\nWelcome to my TinyApp Project.\nCreated by: Tammy Tran");
 });
 
 app.get("/urls", (req,res) => {
@@ -49,13 +64,7 @@ app.get("/register", (req,res) => {
   res.render("urls_registration", templateVars);
 })
 
-// external link to long URL
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-})
-
-// internal sample pages
+// Internal Sample pages
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
@@ -64,11 +73,17 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// Internal link to external long URL
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL];
+  res.redirect(longURL);
+})
+
 // routes for events
 
 app.post("/urls", (req, res) => {
-  let newShortURL = generateRandomString();
-  let newLongURL = req.body.longURL;
+  const newShortURL = generateRandomString();
+  const newLongURL = req.body.longURL;
   urlDatabase[newShortURL] = newLongURL;
   res.redirect(`/urls/${newShortURL}`);
 })
@@ -82,6 +97,22 @@ app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
   urlDatabase[req.params.shortURL] = newLongURL;
   res.redirect(`/urls/${req.params.shortURL}`);
+})
+
+app.post('/register', (req,res) => {
+  // collect user info
+  const userID = generateRandomString();
+  const userEmail = req.body.email;
+  const userPass = req.body.password;
+  // add user to database
+  users[userID] = {
+    id: userID,
+    email: userEmail,
+    password: userPass
+  }
+  console.log(users);
+  res.cookie("user_id", userID);
+  res.redirect('/urls')
 })
 
 // cookie management
