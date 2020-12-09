@@ -64,6 +64,11 @@ function urlsForUser(id) {
   }
   return userURLs;
 }
+// can make  into a function to DRY up user verification for edit and delete
+// let user_id_name = req.cookies["user_id"].id;
+// let url_user = urlDatabase[req.params.shortURL].userID;
+// if (user_id_name === url_user) {
+
 
 // Databases
 const urlDatabase = {
@@ -166,7 +171,6 @@ app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
   let user_id_name = req.cookies["user_id"].id;
   let url_user = urlDatabase[req.params.shortURL].userID;
-  // when edit button is clicked on index page, the show page is render but missing the longURL
   if (newLongURL) {
     if (user_id_name === url_user) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
@@ -184,7 +188,7 @@ app.post('/register', (req,res) => {
   const userID = generateRandomString();
   const userEmail = req.body.email;
   const userPass = req.body.password;
-  // check if email or password is valid, then register
+  // check if email and password is valid, then register
   if (isValid(userEmail) && isValid(userPass) && isNewEmail(userEmail)) {
     users[userID] = {
       id: userID,
@@ -218,7 +222,6 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.clearCookie("username")
   res.redirect('/urls')
 })
 
