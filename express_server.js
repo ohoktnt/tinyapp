@@ -26,6 +26,7 @@ function isValid(input) {
   return false;
 }
 
+// could probably refractor this like below
 function isNewEmail(email) {
   let emailList = [];
   for(let user in users) {
@@ -35,6 +36,24 @@ function isNewEmail(email) {
     return false
   }
   return true;
+}
+
+function userIDFromEmail(email) {
+  for (let user in users) {
+    let values = Object.values(users[user])
+    if (values.includes(email)) {
+      return users[user].id;
+    }
+  }
+  return false;
+}
+
+function passwordMatches(passwordEntered, userID) {
+  let userPass = users[userID].password
+  if (passwordEntered === userPass) {
+    return true;
+  }
+  return false;
 }
 
 // Databases
@@ -136,6 +155,7 @@ app.post('/register', (req,res) => {
     }
     // console.log(users);
     res.cookie("user_id", users[userID]);
+    console.log(users);
     res.redirect('/urls')
   } else {
     if(!isValid(userEmail) || !isValid(userPass)) {
@@ -148,13 +168,21 @@ app.post('/register', (req,res) => {
 
 // cookie management
 app.post("/login", (req, res) => {
-  let username = req.body.username;
-  res.cookie("username", username);
-  res.redirect('/urls')
+  const email = req.body.email;
+  const password = req.body.password;
+  const userID = userIDFromEmail(email)
+  if(userID && passwordMatches(password,userID)) {
+    // console.log(users)
+    res.cookie("user_id", users[userID]);
+    res.redirect('/urls')
+  } else {
+    res.send("Status code: 403. Email cannot be found or password does not match")
+  }
 })
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
+  res.clearCookie("username")
   res.redirect('/urls')
 })
 
