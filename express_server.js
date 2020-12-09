@@ -62,7 +62,6 @@ function urlsForUser(id) {
       userURLs[url] = urlDatabase[url];
     }
   }
-  console.log(userURLs)
   return userURLs;
 }
 
@@ -107,7 +106,14 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { user_id: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL};
+  const templateVars = { 
+    user_id: req.cookies["user_id"],
+    shortURL: req.params.shortURL,
+    longURL: urlDatabase[req.params.shortURL].longURL,
+    // condition to see if user has access
+    user_id_name: req.cookies["user_id"].id,
+    url_user: urlDatabase[req.params.shortURL].userID
+  };
   res.render("urls_show", templateVars);
 });
 
@@ -140,8 +146,8 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   const newLongURL = req.body.longURL;
+  // updates urlDatabase
   urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.cookies["user_id"].id };
-  console.log(urlDatabase)
   res.redirect(`/urls/${newShortURL}`);
 })
 
