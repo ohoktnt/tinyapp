@@ -164,9 +164,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
+  let user_id_name = req.cookies["user_id"].id;
+  let url_user = urlDatabase[req.params.shortURL].userID;
   // when edit button is clicked on index page, the show page is render but missing the longURL
   if (newLongURL) {
-    urlDatabase[req.params.shortURL].longURL = newLongURL;
+    if (user_id_name === url_user) {
+      urlDatabase[req.params.shortURL].longURL = newLongURL;
+    } else {
+      res.send(`You do to not have access!!!`)
+    }
   } else {
     newLongURL = urlDatabase[req.params.shortURL].longURL
   }
