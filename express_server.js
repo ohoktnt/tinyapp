@@ -152,9 +152,15 @@ app.post("/urls", (req, res) => {
 })
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect("/urls");
-})
+  let user_id_name = req.cookies["user_id"].id;
+  let url_user = urlDatabase[req.params.shortURL].userID;
+  if (user_id_name === url_user) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.send(`You do not have access!!!`)
+  }
+});
 
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
