@@ -13,7 +13,7 @@ app.use(cookieParser());
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
-// helper function
+// helper functions
 function generateRandomString() {
   // example given in lecture
   return Math.random().toString(36).substring(2,8);
@@ -28,12 +28,11 @@ function isValid(input) {
 
 // could probably refractor this like below
 function isNewEmail(email) {
-  let emailList = [];
-  for(let user in users) {
-    emailList.push(users[user].email)
-  }
-  if (emailList.includes(email)){
-    return false
+  for (let user in users) {
+    let values = Object.values(users[user])
+    if (values.includes(email)) {
+      return false;
+    }
   }
   return true;
 }
@@ -47,6 +46,7 @@ function userIDFromEmail(email) {
   }
   return false;
 }
+
 
 function passwordMatches(passwordEntered, userID) {
   let userPass = users[userID].password
@@ -78,7 +78,7 @@ const users = {
 // Routes to different pages
 // Internal Pages
 app.get("/", (req, res) => {
-  res.send("Hello!\nWelcome to my TinyApp Project.\nCreated by: Tammy Tran");
+  res.send("Hello!<br>Welcome to my TinyApp Project.<br>Created by: Tammy Tran <br><a href='urls'>Enter Here!</a>");
 });
 
 app.get("/urls", (req,res) => {
@@ -122,7 +122,6 @@ app.get("/u/:shortURL", (req, res) => {
 })
 
 // routes for events
-
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   const newLongURL = req.body.longURL;
@@ -153,9 +152,7 @@ app.post('/register', (req,res) => {
       email: userEmail,
       password: userPass
     }
-    // console.log(users);
     res.cookie("user_id", users[userID]);
-    console.log(users);
     res.redirect('/urls')
   } else {
     if(!isValid(userEmail) || !isValid(userPass)) {
