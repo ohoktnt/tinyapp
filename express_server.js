@@ -55,6 +55,17 @@ function passwordMatches(passwordEntered, userID) {
   return false;
 }
 
+function urlsForUser(id) {
+  let userURLs = {};
+  for (let url in urlDatabase) {
+    if (urlDatabase[url].userID === id) {
+      userURLs[url] = urlDatabase[url];
+    }
+  }
+  console.log(userURLs)
+  return userURLs;
+}
+
 // Databases
 const urlDatabase = {
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "abc123"},
