@@ -29,45 +29,45 @@ describe('userIDFromEmail', () => {
     const user = userIDFromEmail("user@example.com", testUsers);
     const expectedOutput = "userRandomID";
     assert.strictEqual(user, expectedOutput);
-  })
+  });
   it('should return undefined with invalid email', () => {
     const user = userIDFromEmail("tnt@example.com", testUsers);
     const expectedOutput = undefined;
     assert.strictEqual(user, expectedOutput);
-  })
+  });
 });
 
 const { isNewEmail } = require('../helpers');
 
 describe('isNewEmail', () => {
   it('should return true for a new email not in database', () => {
-    const result = isNewEmail('tnt@example.com', testUsers)
+    const result = isNewEmail('tnt@example.com', testUsers);
     const expectedOutput = true;
     assert.strictEqual(result, expectedOutput);
-  })
+  });
   it('should return false since email is already in database', () => {
-    const result = isNewEmail('user@example.com', testUsers)
+    const result = isNewEmail('user@example.com', testUsers);
     const expectedOutput = false;
     assert.strictEqual(result, expectedOutput);
-  })
-})
+  });
+});
 
 const { passwordMatches } = require('../helpers');
 
 describe('passwordMatches', () => {
   it('should return true for password input matching user database', () => {
-    testUsers["userRandomID"].password = bcrypt.hashSync(testUsers["userRandomID"].password, 10)
+    testUsers["userRandomID"].password = bcrypt.hashSync(testUsers["userRandomID"].password, 10);
     const result = passwordMatches("purple-monkey-dinosaur", "userRandomID", testUsers);
     const expectedOutput = true;
     assert.strictEqual(result, expectedOutput);
-  })
+  });
   it('should return false for password input not matching user database', () => {
-    testUsers["user2RandomID"].password = bcrypt.hashSync(testUsers["user2RandomID"].password, 10)
+    testUsers["user2RandomID"].password = bcrypt.hashSync(testUsers["user2RandomID"].password, 10);
     const result = passwordMatches("password", "user2RandomID", testUsers);
     const expectedOutput = false;
     assert.strictEqual(result, expectedOutput);
-  })
-})
+  });
+});
 
 const { urlsForUser} = require('../helpers');
 
@@ -76,10 +76,10 @@ describe('urlsForUser', () => {
     const result = urlsForUser("user2RandomID", testURLS);
     const expectedOutput = {"9sd5xP": {longURL: "http://www.google.com", userID: "user2RandomID"}};
     assert.deepEqual(result, expectedOutput);
-  })
+  });
   it('should return undefined for invalid userID', () => {
     const result = urlsForUser('tnt', testURLS);
-    const expectedOutput = {}
+    const expectedOutput = {};
     assert.deepEqual(result, expectedOutput);
-  })
-})
+  });
+});

@@ -10,10 +10,10 @@ app.set("view engine", "ejs");
 
 // middelware
 const cookieSession = require("cookie-session");
-app.use(cookieSession ({
+app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
-}))
+}));
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -35,7 +35,7 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
-}
+};
 
 // Routes to different pages
 // Internal Pages
@@ -44,8 +44,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  if(req.session.user_id){
-    const urlList = helper.urlsForUser(req.session.user_id.id, urlDatabase)
+  if (req.session.user_id) {
+    const urlList = helper.urlsForUser(req.session.user_id.id, urlDatabase);
     const templateVars = { user_id: req.session.user_id, urls: urlList};
     res.render("urls_index", templateVars);
   } else {
@@ -54,12 +54,12 @@ app.get("/urls", (req,res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user_id: req.session.user_id }
+  const templateVars = { user_id: req.session.user_id };
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { 
+  const templateVars = {
     user_id: req.session.user_id,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
@@ -71,14 +71,14 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req,res) => {
-  const templateVars = { user_id: req.session.user_id}
+  const templateVars = { user_id: req.session.user_id};
   res.render("urls_registration", templateVars);
-})
+});
 
 app.get("/login", (req, res) => {
-  const templateVars = { user_id: req.session.user_id}
-  res.render("urls_login", templateVars)
-})
+  const templateVars = { user_id: req.session.user_id};
+  res.render("urls_login", templateVars);
+});
 
 // Internal Sample pages
 app.get("/urls.json", (req, res) => {
@@ -93,7 +93,7 @@ app.get("/hello", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
-})
+});
 
 // routes for events
 app.post("/urls", (req, res) => {
@@ -102,14 +102,14 @@ app.post("/urls", (req, res) => {
   // updates urlDatabase
   urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.session.user_id.id };
   res.redirect(`/urls/${newShortURL}`);
-})
+});
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-    if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
+  if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.send(`You do not have access!!!`) // does not see this
+    res.send(`You do not have access!!!`); // does not see this
   }
 });
 
@@ -119,13 +119,13 @@ app.post("/urls/:shortURL", (req, res) => {
     if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
     } else {
-      res.send(`You do to not have access!!!`) // does not see this
+      res.send(`You do to not have access!!!`); // does not see this
     }
   } else {
-    newLongURL = urlDatabase[req.params.shortURL].longURL
+    newLongURL = urlDatabase[req.params.shortURL].longURL;
   }
   res.redirect(`/urls/${req.params.shortURL}`);
-})
+});
 
 app.post('/register', (req,res) => {
   // collect user info from form
@@ -139,36 +139,36 @@ app.post('/register', (req,res) => {
       id: userID,
       email: userEmail,
       password: userPassHashed
-    }
+    };
     req.session.user_id = users[userID];
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
-    if(!helper.isValid(userEmail) || !helper.isValid(userPass)) {
-      res.send("Status Code: 400. Email or password not entered.")
+    if (!helper.isValid(userEmail) || !helper.isValid(userPass)) {
+      res.send("Status Code: 400. Email or password not entered.");
     } else {
-      res.send("Status Code: 400. Email already in use")
+      res.send("Status Code: 400. Email already in use");
     }
   }
-})
+});
 
 // cookie management
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const userID = helper.userIDFromEmail(email, users)
-  if(userID && helper.passwordMatches(password,userID,users)) {
+  const userID = helper.userIDFromEmail(email, users);
+  if (userID && helper.passwordMatches(password,userID,users)) {
     // console.log(users)
     req.session.user_id = users[userID];
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
-    res.send("Status code: 403. Email cannot be found or password does not match")
+    res.send("Status code: 403. Email cannot be found or password does not match");
   }
-})
+});
 
 app.post("/logout", (req, res) => {
   req.session = null;
-  res.redirect('/urls')
-})
+  res.redirect('/urls');
+});
 
 // server on
 app.listen(PORT, () => {
