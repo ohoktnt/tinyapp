@@ -9,8 +9,11 @@ const bcrypt = require("bcrypt");
 app.set("view engine", "ejs");
 
 // middelware
-const cookieParser = require('cookie-parser');
-app.use(cookieParser());
+const cookieSession = require("cookie-session");
+app.use(cookieSession ({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
 
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -98,9 +101,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  if(req.cookies["user_id"]){
-    const urlList = urlsForUser(req.cookies["user_id"].id)
-    const templateVars = { user_id: req.cookies["user_id"], urls: urlList};
+  if(req.session.user_id){
+    const urlList = urlsForUser(req.session.user_id.id)
+    const templateVars = { user_id: req.session.user_id, urls: urlList};
     res.render("urls_index", templateVars);
   } else {
     res.render("urls_index", {user_id: null});
@@ -108,29 +111,29 @@ app.get("/urls", (req,res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  const templateVars = { user_id: req.cookies["user_id"] }
+  const templateVars = { user_id: req.session.user_id }
   res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { 
-    user_id: req.cookies["user_id"],
+    user_id: req.session.user_id,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     // condition to see if user has access
-    user_id_name: req.cookies["user_id"].id,
+    user_id_name: req.session.user_id.id,
     url_user: urlDatabase[req.params.shortURL].userID
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/register", (req,res) => {
-  const templateVars = { user_id: req.cookies["user_id"]}
+  const templateVars = { user_id: req.session.user_id}
   res.render("urls_registration", templateVars);
 })
 
 app.get("/login", (req, res) => {
-  const templateVars = { user_id: req.cookies["user_id"]}
+  const templateVars = { user_id: req.session.user_id}
   res.render("urls_login", templateVars)
 })
 
@@ -154,12 +157,12 @@ app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   const newLongURL = req.body.longURL;
   // updates urlDatabase
-  urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.cookies["user_id"].id };
+  urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.session.user_id.id };
   res.redirect(`/urls/${newShortURL}`);
 })
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let user_id_name = req.cookies["user_id"].id;
+  let user_id_name = req.session.user_id.id;
   let url_user = urlDatabase[req.params.shortURL].userID;
   if (user_id_name === url_user) {
     delete urlDatabase[req.params.shortURL];
@@ -171,7 +174,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
-  let user_id_name = req.cookies["user_id"].id;
+  let user_id_name = req.session.user_id.id;
   let url_user = urlDatabase[req.params.shortURL].userID;
   if (newLongURL) {
     if (user_id_name === url_user) {
@@ -191,7 +194,6 @@ app.post('/register', (req,res) => {
   const userEmail = req.body.email;
   const userPass = req.body.password;
   const userPassHashed = bcrypt.hashSync(userPass, 10);
-  console.log(userPassHashed);
   // check if email and password is valid, then register
   if (isValid(userEmail) && isValid(userPass) && isNewEmail(userEmail)) {
     users[userID] = {
@@ -199,7 +201,7 @@ app.post('/register', (req,res) => {
       email: userEmail,
       password: userPassHashed
     }
-    res.cookie("user_id", users[userID]);
+    req.session.user_id = users[userID];
     res.redirect('/urls')
   } else {
     if(!isValid(userEmail) || !isValid(userPass)) {
@@ -217,7 +219,7 @@ app.post("/login", (req, res) => {
   const userID = userIDFromEmail(email)
   if(userID && passwordMatches(password,userID)) {
     // console.log(users)
-    res.cookie("user_id", users[userID]);
+    req.session.user_id = users[userID];
     res.redirect('/urls')
   } else {
     res.send("Status code: 403. Email cannot be found or password does not match")
@@ -225,7 +227,7 @@ app.post("/login", (req, res) => {
 })
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
+  req.session = null;
   res.redirect('/urls')
 })
 
