@@ -4,7 +4,7 @@ const express = require("express");
 const app = express();
 const PORT = 3000; // default port 8080
 const bcrypt = require("bcrypt");
-
+const helper = require("./helpers.js");
 
 app.set("view engine", "ejs");
 
@@ -18,61 +18,16 @@ app.use(cookieSession ({
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
-// helper functions
-function generateRandomString() {
-  // example given in lecture
-  return Math.random().toString(36).substring(2,8);
-};
+// // helper functions
+// module.exports = {
+//   generateRandomString,
+//   isValid,
+//   isNewEmail,
+//   userIDFromEmail,
+//   passwordMatches,
+//   urlsForUser
+// }
 
-function isValid(input) {
-  if(input) {
-    return true;
-  }
-  return false;
-}
-
-// could probably refractor this like below
-function isNewEmail(email, usersDatabase) {
-  for (let user in usersDatabase) {
-    let values = Object.values(usersDatabase[user])
-    if (values.includes(email)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-function userIDFromEmail(email, usersDatabase) {
-  for (let user in usersDatabase) {
-    let values = Object.values(usersDatabase[user])
-    if (values.includes(email)) {
-      return usersDatabase[user].id;
-    }
-  }
-  return false;
-}
-
-function passwordMatches(passwordEntered, userID, usersDatabase) {
-  let userPassHashed = usersDatabase[userID].password
-  if (bcrypt.compareSync(passwordEntered, userPassHashed)) {
-    return true;
-  }
-  return false;
-}
-
-function urlsForUser(id, urlDatabase) {
-  let userURLs = {};
-  for (let url in urlDatabase) {
-    if (urlDatabase[url].userID === id) {
-      userURLs[url] = urlDatabase[url];
-    }
-  }
-  return userURLs;
-}
-// can make  into a function to DRY up user verification for edit and delete
-// let user_id_name = req.cookies["user_id"].id;
-// let url_user = urlDatabase[req.params.shortURL].userID;
-// if (user_id_name === url_user) {
 
 
 // Databases
@@ -102,7 +57,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req,res) => {
   if(req.session.user_id){
-    const urlList = urlsForUser(req.session.user_id.id, urlDatabase)
+    const urlList = helper.urlsForUser(req.session.user_id.id, urlDatabase)
     const templateVars = { user_id: req.session.user_id, urls: urlList};
     res.render("urls_index", templateVars);
   } else {
@@ -154,7 +109,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // routes for events
 app.post("/urls", (req, res) => {
-  const newShortURL = generateRandomString();
+  const newShortURL = helper.generateRandomString();
   const newLongURL = req.body.longURL;
   // updates urlDatabase
   urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.session.user_id.id };
@@ -190,12 +145,12 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post('/register', (req,res) => {
   // collect user info from form
-  const userID = generateRandomString();
+  const userID = helper.generateRandomString();
   const userEmail = req.body.email;
   const userPass = req.body.password;
   const userPassHashed = bcrypt.hashSync(userPass, 10);
   // check if email and password is valid, then register
-  if (isValid(userEmail) && isValid(userPass) && isNewEmail(userEmail, users)) {
+  if (helper.isValid(userEmail) && helper.isValid(userPass) && helper.isNewEmail(userEmail, users)) {
     users[userID] = {
       id: userID,
       email: userEmail,
@@ -204,7 +159,7 @@ app.post('/register', (req,res) => {
     req.session.user_id = users[userID];
     res.redirect('/urls')
   } else {
-    if(!isValid(userEmail) || !isValid(userPass)) {
+    if(!helper.isValid(userEmail) || !helper.isValid(userPass)) {
       res.send("Status Code: 400. Email or password not entered.")
     } else {
       res.send("Status Code: 400. Email already in use")
@@ -216,8 +171,8 @@ app.post('/register', (req,res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const userID = userIDFromEmail(email, users)
-  if(userID && passwordMatches(password,userID,users)) {
+  const userID = helper.userIDFromEmail(email, users)
+  if(userID && helper.passwordMatches(password,userID,users)) {
     // console.log(users)
     req.session.user_id = users[userID];
     res.redirect('/urls')
