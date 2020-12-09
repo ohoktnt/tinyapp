@@ -18,18 +18,6 @@ app.use(cookieSession ({
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
-// // helper functions
-// module.exports = {
-//   generateRandomString,
-//   isValid,
-//   isNewEmail,
-//   userIDFromEmail,
-//   passwordMatches,
-//   urlsForUser
-// }
-
-
-
 // Databases
 const urlDatabase = {
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "abc123"},
@@ -117,25 +105,21 @@ app.post("/urls", (req, res) => {
 })
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let user_id_name = req.session.user_id.id;
-  let url_user = urlDatabase[req.params.shortURL].userID;
-  if (user_id_name === url_user) {
+    if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.send(`You do not have access!!!`)
+    res.send(`You do not have access!!!`) // does not see this
   }
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
-  let user_id_name = req.session.user_id.id;
-  let url_user = urlDatabase[req.params.shortURL].userID;
   if (newLongURL) {
-    if (user_id_name === url_user) {
+    if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
     } else {
-      res.send(`You do to not have access!!!`)
+      res.send(`You do to not have access!!!`) // does not see this
     }
   } else {
     newLongURL = urlDatabase[req.params.shortURL].longURL

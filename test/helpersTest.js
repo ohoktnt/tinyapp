@@ -1,7 +1,6 @@
 // test/helpersTest.js
 
 const { assert } = require('chai');
-
 const bcrypt = require("bcrypt");
 
 const testUsers = {
@@ -15,6 +14,12 @@ const testUsers = {
     email: "user2@example.com",
     password: "dishwasher-funk"
   }
+};
+
+const testURLS = {
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "abc123"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "abc123"},
+  "9sd5xP": {longURL: "http://www.google.com", userID: "user2RandomID"}
 };
 
 const { userIDFromEmail } = require('../helpers');
@@ -61,5 +66,20 @@ describe('passwordMatches', () => {
     const result = passwordMatches("password", "user2RandomID", testUsers);
     const expectedOutput = false;
     assert.strictEqual(result, expectedOutput);
+  })
+})
+
+const { urlsForUser} = require('../helpers');
+
+describe('urlsForUser', () => {
+  it('should return object with urls with matching userID', () => {
+    const result = urlsForUser("user2RandomID", testURLS);
+    const expectedOutput = {"9sd5xP": {longURL: "http://www.google.com", userID: "user2RandomID"}};
+    assert.deepEqual(result, expectedOutput);
+  })
+  it('should return undefined for invalid userID', () => {
+    const result = urlsForUser('tnt', testURLS);
+    const expectedOutput = {}
+    assert.deepEqual(result, expectedOutput);
   })
 })

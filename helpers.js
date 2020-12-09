@@ -52,10 +52,15 @@ function urlsForUser(id, urlDatabase) {
   }
   return userURLs;
 }
-// can make  into a function to DRY up user verification for edit and delete
-// let user_id_name = req.cookies["user_id"].id;
-// let url_user = urlDatabase[req.params.shortURL].userID;
-// if (user_id_name === url_user) {
+
+function userVerification(cookieID, databaseID) {
+  let userID = cookieID.id;
+  let url_userID = databaseID.userID;
+  if(userID === url_userID) {
+    return true;
+  }
+  return false;
+}
 
 
 module.exports = {
@@ -64,5 +69,6 @@ module.exports = {
   isNewEmail,
   userIDFromEmail,
   passwordMatches,
-  urlsForUser
+  urlsForUser,
+  userVerification
 }
