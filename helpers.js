@@ -32,7 +32,7 @@ function userIDFromEmail(email, usersDatabase) {
       return usersDatabase[user].id;
     }
   }
-  return false;
+  return undefined;
 }
 
 function passwordMatches(passwordEntered, userID, usersDatabase) {
