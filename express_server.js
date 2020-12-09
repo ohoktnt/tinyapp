@@ -47,7 +47,6 @@ function userIDFromEmail(email) {
   return false;
 }
 
-
 function passwordMatches(passwordEntered, userID) {
   let userPass = users[userID].password
   if (passwordEntered === userPass) {
@@ -58,13 +57,13 @@ function passwordMatches(passwordEntered, userID) {
 
 // Databases
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "abc123"},
+  "9sm5xK": {longURL: "http://www.google.com", userID: "abc123"}
 };
 
 const users = {
-  "userRandomID": {
-    id: "userRandomID",
+  "abc123": {
+    id: "abc123",
     email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
@@ -92,7 +91,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { user_id: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = { user_id: req.cookies["user_id"], shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL};
   res.render("urls_show", templateVars);
 });
 
@@ -117,7 +116,7 @@ app.get("/hello", (req, res) => {
 
 // Internal link to external long URL
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
+  const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 })
 
@@ -125,7 +124,7 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   const newLongURL = req.body.longURL;
-  urlDatabase[newShortURL] = newLongURL;
+  urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.cookies["user_id"] };
   res.redirect(`/urls/${newShortURL}`);
 })
 
@@ -136,7 +135,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
-  urlDatabase[req.params.shortURL] = newLongURL;
+  // when edit button is clicked on index page, the show page is render but missing the longURL
+  if (newLongURL) {
+    urlDatabase[req.params.shortURL].longURL = newLongURL;
+  } else {
+    newLongURL = urlDatabase[req.params.shortURL].longURL
+  }
   res.redirect(`/urls/${req.params.shortURL}`);
 })
 
