@@ -32,9 +32,9 @@ function isValid(input) {
 }
 
 // could probably refractor this like below
-function isNewEmail(email) {
-  for (let user in users) {
-    let values = Object.values(users[user])
+function isNewEmail(email, usersDatabase) {
+  for (let user in usersDatabase) {
+    let values = Object.values(usersDatabase[user])
     if (values.includes(email)) {
       return false;
     }
@@ -42,25 +42,25 @@ function isNewEmail(email) {
   return true;
 }
 
-function userIDFromEmail(email) {
-  for (let user in users) {
-    let values = Object.values(users[user])
+function userIDFromEmail(email, usersDatabase) {
+  for (let user in usersDatabase) {
+    let values = Object.values(usersDatabase[user])
     if (values.includes(email)) {
-      return users[user].id;
+      return usersDatabase[user].id;
     }
   }
   return false;
 }
 
-function passwordMatches(passwordEntered, userID) {
-  let userPassHashed = users[userID].password
+function passwordMatches(passwordEntered, userID, usersDatabase) {
+  let userPassHashed = usersDatabase[userID].password
   if (bcrypt.compareSync(passwordEntered, userPassHashed)) {
     return true;
   }
   return false;
 }
 
-function urlsForUser(id) {
+function urlsForUser(id, urlDatabase) {
   let userURLs = {};
   for (let url in urlDatabase) {
     if (urlDatabase[url].userID === id) {
@@ -102,7 +102,7 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req,res) => {
   if(req.session.user_id){
-    const urlList = urlsForUser(req.session.user_id.id)
+    const urlList = urlsForUser(req.session.user_id.id, urlDatabase)
     const templateVars = { user_id: req.session.user_id, urls: urlList};
     res.render("urls_index", templateVars);
   } else {
@@ -195,7 +195,7 @@ app.post('/register', (req,res) => {
   const userPass = req.body.password;
   const userPassHashed = bcrypt.hashSync(userPass, 10);
   // check if email and password is valid, then register
-  if (isValid(userEmail) && isValid(userPass) && isNewEmail(userEmail)) {
+  if (isValid(userEmail) && isValid(userPass) && isNewEmail(userEmail, users)) {
     users[userID] = {
       id: userID,
       email: userEmail,
@@ -216,8 +216,8 @@ app.post('/register', (req,res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  const userID = userIDFromEmail(email)
-  if(userID && passwordMatches(password,userID)) {
+  const userID = userIDFromEmail(email, users)
+  if(userID && passwordMatches(password,userID,users)) {
     // console.log(users)
     req.session.user_id = users[userID];
     res.redirect('/urls')
