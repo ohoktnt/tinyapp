@@ -92,8 +92,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req,res) => {
-  const templateVars = { user_id: req.cookies["user_id"], urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  if(req.cookies["user_id"]){
+    const urlList = urlsForUser(req.cookies["user_id"].id)
+    const templateVars = { user_id: req.cookies["user_id"], urls: urlList};
+    res.render("urls_index", templateVars);
+  } else {
+    res.render("urls_index", {user_id: null});
+  }
 });
 
 app.get("/urls/new", (req, res) => {
@@ -135,7 +140,8 @@ app.get("/u/:shortURL", (req, res) => {
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
   const newLongURL = req.body.longURL;
-  urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.cookies["user_id"] };
+  urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.cookies["user_id"].id };
+  console.log(urlDatabase)
   res.redirect(`/urls/${newShortURL}`);
 })
 
