@@ -19,36 +19,19 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Databases
-const urlDatabase = {
-  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userID: "abc123"},
-  "9sm5xK": {longURL: "http://www.google.com", userID: "abc123"}
-};
-
-const users = {
-  "abc123": {
-    id: "abc123",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  }
-};
-
+const urlDatabase = {};
+const users = {};
 
 // Routes to different pages
 // Internal Pages
 app.get("/", (req, res) => {
-  // res.send("Hello!<br>Welcome to my TinyApp Project.<br>Created by: Tammy Tran <br><a href='urls'>Enter Here!</a>")
   if (req.session.user_id) {
     res.redirect('/urls')
   } else {
     res.redirect('/login')
   }
 });
-
+// main page
 app.get("/urls", (req,res) => {
   if (req.session.user_id) {
     const urlList = helper.urlsForUser(req.session.user_id.id, urlDatabase);
@@ -65,7 +48,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  // if the shortURL is not in db
+  // if the shortURL is in db
   if (helper.isURLInDB(req.params.shortURL, urlDatabase)) {
     const templateVars = {
       user_id: req.session.user_id,
@@ -112,16 +95,6 @@ app.get("/u/:shortURL", (req, res) => {
     res.status(404).send("The Short URL code does not exist!")
   }
 });
-
-// Internal Sample pages
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 
 // routes for events
 app.post("/urls", (req, res) => {
