@@ -91,10 +91,10 @@ describe('isURLInDB', () => {
     const result = isURLInDB("b2xVn2", testURLS);
     const expectedOutput = true;
     assert.strictEqual(result, expectedOutput);
-  })
+  });
   it('should return false for urls is not inside database', () => {
     const result = isURLInDB("tnt", testURLS);
     const expectedOutput = false;
     assert.strictEqual(result, expectedOutput);
-  })
+  });
 });

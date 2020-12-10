@@ -125,7 +125,7 @@ app.post("/urls/:shortURL", (req, res) => {
   if (newLongURL) {
     if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
-      res.redirect('/urls');
+      return res.redirect('/urls');
     }
   } else {
     newLongURL = urlDatabase[req.params.shortURL].longURL;
@@ -177,12 +177,12 @@ app.post("/logout", (req, res) => {
   res.redirect('/urls');
 });
 
-// default error page
+// Default error page
 app.get("*", (req, res) => {
   res.status(404).send("ERROR: 404!");
 });
 
-// server on
+// Server on
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp listening on port ${PORT}!`);
 });
