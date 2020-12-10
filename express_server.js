@@ -94,6 +94,10 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/register", (req,res) => {
+  // if user already logged in
+  if(req.session.user_id){
+    res.redirect('/urls')
+  }
   const templateVars = { user_id: req.session.user_id};
   res.render("urls_registration", templateVars);
 });
@@ -133,7 +137,7 @@ app.post("/urls", (req, res) => {
   const newLongURL = req.body.longURL;
   // updates urlDatabase
   urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.session.user_id.id };
-  res.redirect(`/urls`);
+  res.redirect(`/urls/${newShortURL}`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -150,6 +154,7 @@ app.post("/urls/:shortURL", (req, res) => {
   if (newLongURL) {
     if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
+      res.redirect('/urls')
     } else {
       res.send(`You do to not have access!!!`); // does not see this
     }
