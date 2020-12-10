@@ -68,10 +68,14 @@ app.get("/urls/:shortURL", (req, res) => {
     user_id: req.session.user_id,
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
-    // condition to see if user has access
-    user_id_name: req.session.user_id.id,
-    url_user: urlDatabase[req.params.shortURL].userID
+    user_id_name: null,
+    url_user: null
   };
+  // condition to see if user has access
+  if (req.session.user_id) {
+    templateVars.user_id_name = req.session.user_id.id;
+    templateVars.url_user = urlDatabase[req.params.shortURL].userID;
+  }
   res.render("urls_show", templateVars);
 });
 
@@ -85,6 +89,12 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
 });
 
+// Internal link to external long URL
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(longURL);
+});
+
 // Internal Sample pages
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
@@ -94,11 +104,6 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// Internal link to external long URL
-app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
-});
 
 // routes for events
 app.post("/urls", (req, res) => {
@@ -106,7 +111,7 @@ app.post("/urls", (req, res) => {
   const newLongURL = req.body.longURL;
   // updates urlDatabase
   urlDatabase[newShortURL] = {longURL: newLongURL, userID: req.session.user_id.id };
-  res.redirect(`/urls/${newShortURL}`);
+  res.redirect(`/urls`);
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
