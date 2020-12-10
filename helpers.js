@@ -62,6 +62,14 @@ function userVerification(cookieID, databaseID) {
   return false;
 }
 
+function isURLInDB (shortURL, database) {
+  let shortURLList = Object.keys(database);
+  if (shortURLList.includes(shortURL)) {
+    return true;
+  }
+  return false;
+}
+
 
 module.exports = {
   generateRandomString,
@@ -70,5 +78,6 @@ module.exports = {
   userIDFromEmail,
   passwordMatches,
   urlsForUser,
-  userVerification
+  userVerification,
+  isURLInDB
 };

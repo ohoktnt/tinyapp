@@ -37,14 +37,6 @@ const users = {
   }
 };
 
-// helper function test
-function isURLInDB (shortURL, database) {
-  let shortURLList = Object.keys(database);
-  if (shortURLList.includes(shortURL)) {
-    return true;
-  }
-  return false;
-}
 
 // Routes to different pages
 // Internal Pages
@@ -74,7 +66,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
   // if the shortURL is not in db
-  if (isURLInDB(req.params.shortURL, urlDatabase)) {
+  if (helper.isURLInDB(req.params.shortURL, urlDatabase)) {
     const templateVars = {
       user_id: req.session.user_id,
       shortURL: req.params.shortURL,
@@ -113,7 +105,7 @@ app.get("/login", (req, res) => {
 
 // Internal link to external long URL
 app.get("/u/:shortURL", (req, res) => {
-  if (isURLInDB(req.params.shortURL, urlDatabase)) {
+  if (helper.isURLInDB(req.params.shortURL, urlDatabase)) {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
   } else {
