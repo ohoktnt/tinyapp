@@ -14,7 +14,6 @@ function isValid(input) {
   return false;
 }
 
-// could probably refractor this like below
 function isNewEmail(email, usersDatabase) {
   for (let user in usersDatabase) {
     let values = Object.values(usersDatabase[user]);
@@ -62,7 +61,7 @@ function userVerification(cookieID, databaseID) {
   return false;
 }
 
-function isURLInDB (shortURL, database) {
+function isURLInDB(shortURL, database) {
   let shortURLList = Object.keys(database);
   if (shortURLList.includes(shortURL)) {
     return true;

@@ -1,4 +1,4 @@
-// Creating Web Server with Express
+// TinyApp Server
 
 const express = require("express");
 const app = express();
@@ -22,15 +22,15 @@ app.use(bodyParser.urlencoded({extended: true}));
 const urlDatabase = {};
 const users = {};
 
-// Routes to different pages
-// Internal Pages
+// Routes
 app.get("/", (req, res) => {
   if (req.session.user_id) {
-    res.redirect('/urls')
+    res.redirect('/urls');
   } else {
-    res.redirect('/login')
+    res.redirect('/login');
   }
 });
+
 // main page
 app.get("/urls", (req,res) => {
   if (req.session.user_id) {
@@ -42,11 +42,13 @@ app.get("/urls", (req,res) => {
   }
 });
 
+// new url submission page
 app.get("/urls/new", (req, res) => {
   const templateVars = { user_id: req.session.user_id };
   res.render("urls_new", templateVars);
 });
 
+// shortURL page
 app.get("/urls/:shortURL", (req, res) => {
   // if the shortURL is in db
   if (helper.isURLInDB(req.params.shortURL, urlDatabase)) {
@@ -68,35 +70,39 @@ app.get("/urls/:shortURL", (req, res) => {
   }
 });
 
+// registeration page
 app.get("/register", (req,res) => {
   // if user already logged in
-  if(req.session.user_id){
-    res.redirect('/urls')
+  if (req.session.user_id) {
+    res.redirect('/urls');
   }
   const templateVars = { user_id: req.session.user_id};
   res.render("urls_registration", templateVars);
 });
 
+// login page
 app.get("/login", (req, res) => {
   // if user already logged in
-  if(req.session.user_id){
-    res.redirect('/urls')
+  if (req.session.user_id) {
+    res.redirect('/urls');
   }
   const templateVars = { user_id: req.session.user_id};
   res.render("urls_login", templateVars);
 });
 
-// Internal link to external long URL
+// Internal access to external long URL
 app.get("/u/:shortURL", (req, res) => {
   if (helper.isURLInDB(req.params.shortURL, urlDatabase)) {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
   } else {
-    res.status(404).send("The Short URL code does not exist!")
+    res.status(404).send("The Short URL code does not exist!");
   }
 });
 
-// routes for events
+// Routes for events
+
+// Creating new shortURLs
 app.post("/urls", (req, res) => {
   const newShortURL = helper.generateRandomString();
   const newLongURL = req.body.longURL;
@@ -105,26 +111,29 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${newShortURL}`);
 });
 
+// Delete shortURL
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
-  } 
+  }
 });
 
+// Update shortURL with new Long URL
 app.post("/urls/:shortURL", (req, res) => {
   let newLongURL = req.body.newLongURL;
   if (newLongURL) {
     if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
-      res.redirect('/urls')
-    } 
+      res.redirect('/urls');
+    }
   } else {
     newLongURL = urlDatabase[req.params.shortURL].longURL;
   }
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
+// Create a new user
 app.post('/register', (req,res) => {
   // collect user info from form
   const userID = helper.generateRandomString();
@@ -149,7 +158,7 @@ app.post('/register', (req,res) => {
   }
 });
 
-// cookie management
+// Cookie management / User Management
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -170,8 +179,8 @@ app.post("/logout", (req, res) => {
 
 // default error page
 app.get("*", (req, res) => {
-  res.status(404).send("ERROR: 404!")
-})
+  res.status(404).send("ERROR: 404!");
+});
 
 // server on
 app.listen(PORT, () => {
