@@ -40,7 +40,12 @@ const users = {
 // Routes to different pages
 // Internal Pages
 app.get("/", (req, res) => {
-  res.send("Hello!<br>Welcome to my TinyApp Project.<br>Created by: Tammy Tran <br><a href='urls'>Enter Here!</a>");
+  // res.send("Hello!<br>Welcome to my TinyApp Project.<br>Created by: Tammy Tran <br><a href='urls'>Enter Here!</a>")
+  if (req.session.user_id) {
+    res.redirect('/urls')
+  } else {
+    res.redirect('/login')
+  }
 });
 
 app.get("/urls", (req,res) => {
