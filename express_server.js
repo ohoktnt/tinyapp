@@ -37,6 +37,15 @@ const users = {
   }
 };
 
+// helper function test
+function isURLInDB (shortURL, database) {
+  let shortURLList = Object.keys(database);
+  if (shortURLList.includes(shortURL)) {
+    return true;
+  }
+  return false;
+}
+
 // Routes to different pages
 // Internal Pages
 app.get("/", (req, res) => {
@@ -64,19 +73,25 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    user_id: req.session.user_id,
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
-    user_id_name: null,
-    url_user: null
-  };
-  // condition to see if user has access
-  if (req.session.user_id) {
-    templateVars.user_id_name = req.session.user_id.id;
-    templateVars.url_user = urlDatabase[req.params.shortURL].userID;
+  // if the shortURL is not in db
+  if (isURLInDB(req.params.shortURL, urlDatabase)) {
+    const templateVars = {
+      user_id: req.session.user_id,
+      shortURL: req.params.shortURL,
+      longURL: urlDatabase[req.params.shortURL].longURL,
+      user_id_name: null,
+      url_user: null
+    };
+    // condition to see if user has access
+    if (req.session.user_id) {
+      templateVars.user_id_name = req.session.user_id.id;
+      templateVars.url_user = urlDatabase[req.params.shortURL].userID;
+    }
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(404).send("The Short URL code does not exist!");
   }
-  res.render("urls_show", templateVars);
+
 });
 
 app.get("/register", (req,res) => {
@@ -91,8 +106,12 @@ app.get("/login", (req, res) => {
 
 // Internal link to external long URL
 app.get("/u/:shortURL", (req, res) => {
+  if (isURLInDB(req.params.shortURL, urlDatabase)) {
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
+  } else {
+    res.status(404).send("The Short URL code does not exist!")
+  }
 });
 
 // Internal Sample pages
@@ -154,9 +173,9 @@ app.post('/register', (req,res) => {
     res.redirect('/urls');
   } else {
     if (!helper.isValid(userEmail) || !helper.isValid(userPass)) {
-      res.send("Status Code: 400. Email or password not entered.");
+      res.status(400).send("Status Code: 400. Email or password not entered.");
     } else {
-      res.send("Status Code: 400. Email already in use");
+      res.status(400).send("Status Code: 400. Email already in use");
     }
   }
 });
