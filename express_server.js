@@ -2,13 +2,13 @@
 
 const express = require("express");
 const app = express();
-const PORT = 3000; // default port 8080
+const PORT = 3000;
 const bcrypt = require("bcrypt");
 const helper = require("./helpers.js");
 
 app.set("view engine", "ejs");
 
-// middelware
+// Middelware
 const cookieSession = require("cookie-session");
 app.use(cookieSession({
   name: 'session',
@@ -115,7 +115,7 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {
   if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
     delete urlDatabase[req.params.shortURL];
-    res.redirect("/urls");
+    return res.redirect("/urls");
   }
 });
 
