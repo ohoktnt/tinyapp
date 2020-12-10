@@ -91,7 +91,6 @@ app.get("/urls/:shortURL", (req, res) => {
   } else {
     res.status(404).send("The Short URL code does not exist!");
   }
-
 });
 
 app.get("/register", (req,res) => {
@@ -100,6 +99,10 @@ app.get("/register", (req,res) => {
 });
 
 app.get("/login", (req, res) => {
+  // if user already logged in
+  if(req.session.user_id){
+    res.redirect('/urls')
+  }
   const templateVars = { user_id: req.session.user_id};
   res.render("urls_login", templateVars);
 });
@@ -138,7 +141,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.send(`You do not have access!!!`); // does not see this
+    res.status(404).send(`You do not have access!!!`); // does not see this
   }
 });
 
@@ -198,6 +201,11 @@ app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect('/urls');
 });
+
+// default error page
+app.get("*", (req, res) => {
+  res.status(404).send("ERROR: 404!")
+})
 
 // server on
 app.listen(PORT, () => {
