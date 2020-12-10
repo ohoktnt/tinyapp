@@ -144,9 +144,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
-  } else {
-    res.status(404).send(`You do not have access!!!`); // does not see this
-  }
+  } 
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -155,9 +153,7 @@ app.post("/urls/:shortURL", (req, res) => {
     if (helper.userVerification(req.session.user_id, urlDatabase[req.params.shortURL])) {
       urlDatabase[req.params.shortURL].longURL = newLongURL;
       res.redirect('/urls')
-    } else {
-      res.send(`You do to not have access!!!`); // does not see this
-    }
+    } 
   } else {
     newLongURL = urlDatabase[req.params.shortURL].longURL;
   }
